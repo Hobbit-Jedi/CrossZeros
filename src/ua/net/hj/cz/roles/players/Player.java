@@ -2,6 +2,7 @@ package ua.net.hj.cz.roles.players;
 
 import ua.net.hj.cz.core.ActionFigure;
 import ua.net.hj.cz.core.Move;
+import ua.net.hj.cz.game.ScanExitException;
 import ua.net.hj.cz.roles.Board;
 import ua.net.hj.cz.roles.Rules;
 
@@ -170,6 +171,8 @@ public abstract class Player implements PlayerReadOnly {
 	 * @param aFigure - Фигура, которой игрок должен сделать ход.
 	 * @return - Ход, который собирается делать игрок.
 	 *           null, если игрок не знает куда пойти.
+	 * @throws ua.net.hj.cz.game.ScanExitException - Управляемые человеком игроки могут вызвать это исключение,
+	 *                                               чтобы мгновенно прекратить игру.
 	 */
-	abstract public Move makeMove(Board aBoard, byte[] aActivePlayersSequence, ActionFigure aFigure);
+	abstract public Move makeMove(Board aBoard, byte[] aActivePlayersSequence, ActionFigure aFigure) throws ScanExitException;
 }

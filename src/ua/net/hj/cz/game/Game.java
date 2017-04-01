@@ -158,9 +158,8 @@ public class Game {
 		MoveResult moveResult; // Результат проверки хода игрока судьей.
 		
 		boolean result = true;
-		//TODO: Когда задействуем игрока-человека - раскомментить ловлю исключений.
-		//try
-		//{
+		try
+		{
 			// Создаем доску для игры и настроим ее.
 			Board board = new Board(mRules.getBoardXSize(), mRules.getBoardYSize());
 			for (Map.Entry<Byte, ActionFigure> entry: mPlayerIDsFiguresMap.entrySet())
@@ -276,11 +275,11 @@ public class Game {
 					if (gameOver) break;
 				}
 			}
-		//}
-		//catch (ScanExitException e)
-		//{
-		//	result = false;
-		//}
+		}
+		catch (ScanExitException e)
+		{
+			result = false;
+		}
 		return result;
 	}
 	
@@ -381,9 +380,7 @@ public class Game {
 		switch (playerType)
 		{
 			case HUMAN:
-				//TODO: Заменить на создание правильного типа игрока.
-				//result = new PlayerHuman(name);
-				result = mPlayersFactory.createRandomPlayer(name);
+				result = mPlayersFactory.createHumanPlayer(name);
 				break;
 			case RANDOM:
 				result = mPlayersFactory.createRandomPlayer(name);
