@@ -9,28 +9,33 @@ import ua.net.hj.cz.roles.players.PlayerReadOnly;
 public class Move {
 	private final Coordinates mCoordinates; // Координаты, в которые делается ход.
 	private final PlayerReadOnly mPlayer;   // Игрок, который делает ход.
+	private final ActionFigure mFigure;     // Фигура, которой игрок делает ход.
 	
 	/**
 	 * Создать ход по указанным по одтельности координатам.
 	 * @param aX - X-координата, в которую делается ход.
 	 * @param aY - Y-координата, в которую делается ход.
 	 * @param aPlayer - Игрок, который делает ход.
+	 * @param aFigure - Фигура, которой игрок делает ход.
 	 */
-	public Move(byte aX, byte aY, PlayerReadOnly aPlayer)
+	public Move(byte aX, byte aY, PlayerReadOnly aPlayer, ActionFigure aFigure)
 	{
 		mCoordinates = new Coordinates(aX, aY);
 		mPlayer = aPlayer;
+		mFigure = aFigure;
 	}
 	
 	/**
 	 * Создать ход по указанному объекту координат.
 	 * @param aCoordinates - Координаты, в которые делается ход.
 	 * @param aPlayer - Игрок, который делает ход.
+	 * @param aFigure - Фигура, которой игрок делает ход.
 	 */
-	public Move(Coordinates aCoordinates, PlayerReadOnly aPlayer)
+	public Move(Coordinates aCoordinates, PlayerReadOnly aPlayer, ActionFigure aFigure)
 	{
 		mCoordinates = aCoordinates;
 		mPlayer = aPlayer;
+		mFigure = aFigure;
 	}
 	
 	/**
@@ -70,13 +75,29 @@ public class Move {
 	}
 	
 	/**
+	 * Получить фигуру, которой игрок сделал ход.
+	 * @return - Фигура, которой сделан ход.
+	 */
+	public ActionFigure getFigure()
+	{
+		return mFigure;
+	}
+	
+	/**
 	 * Получить строковое представление хода.
 	 * @return - Строковое представление хода.
 	 */
 	@Override
 	public String toString()
 	{
-		return new StringBuilder(mPlayer.getName()).append(" ходит в (").append(mCoordinates).append(")").toString();
+		StringBuilder result = new StringBuilder();
+		result.append(mPlayer);
+		result.append(" (");
+		result.append(mFigure);
+		result.append(") ходит в (");
+		result.append(mCoordinates);
+		result.append(")");
+		return result.toString();
 	}
 	
 	/**
@@ -97,7 +118,10 @@ public class Move {
 			return false;
 		}
 		final Move other = (Move) obj;
-		boolean result = this.mCoordinates.equals(other.mCoordinates) && this.mPlayer.equals(other.mPlayer);
+		boolean result = this.mCoordinates.equals(other.mCoordinates)
+						&& this.mPlayer.equals(other.mPlayer)
+						&& this.mFigure.equals(other.mFigure)
+						;
 		return result;
 	}
 	
@@ -108,7 +132,7 @@ public class Move {
 	@Override
 	public int hashCode()
 	{
-		int hash = (mCoordinates.hashCode()<<16) + (mPlayer.hashCode() & 0xFFFF);
+		int hash = (mCoordinates.hashCode()<<16) + (mPlayer.hashCode()<<8 & 0xFFFF) + (mFigure.hashCode() & 0xFF);
 		return hash;
 	}
 	

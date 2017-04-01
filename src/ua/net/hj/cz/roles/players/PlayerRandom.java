@@ -1,6 +1,7 @@
 package ua.net.hj.cz.roles.players;
 
 import java.util.Random;
+import ua.net.hj.cz.core.ActionFigure;
 import ua.net.hj.cz.core.Coordinates;
 import ua.net.hj.cz.core.Move;
 import ua.net.hj.cz.roles.Board;
@@ -29,11 +30,12 @@ public class PlayerRandom extends Player {
 	 * @param aBoard - Слепок текущей ситуации на игровом поле.
 	 * @param aActivePlayersSequence - Порядок, в котором ходят еще активные участвующие в игре игроки.
 	 *                                 Массив содержит уникальные идентификаторы игроков.
+	 * @param aFigure - Фигура, которой игрок должен сделать ход.
 	 * @return - Ход, который собирается делать игрок.
 	 *           null, если игрок не знает куда пойти.
 	 */
 	@Override
-	public Move makeMove(Board aBoard, byte[] aActivePlayersSequence)
+	public Move makeMove(Board aBoard, byte[] aActivePlayersSequence, ActionFigure aFigure)
 	{
 		final byte boardXSize = aBoard.getXSize();
 		final byte boardYSize = aBoard.getYSize();
@@ -52,13 +54,13 @@ public class PlayerRandom extends Player {
 			} while (!found && --randomTriesCounter >= 0);
 			if (found)
 			{
-				result = new Move(x, y, this);
+				result = new Move(x, y, this, aFigure);
 			}
 			else
 			{
 				// Если испробовали все попытки попасть в пустую клетку случайно,
 				// то ходим в первую свободную.
-				result = new Move(emptyCell, this);
+				result = new Move(emptyCell, this, aFigure);
 			}
 		}
 		return result;

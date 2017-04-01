@@ -73,7 +73,7 @@ public class Referee {
 					{
 						result = MoveResult.DEADLOCK;
 					}
-					System.out.println("Ход игрока " + aPlayer + " принят: " + aMove);
+					System.out.println("Ход игрока принят: " + aMove);
 				}
 				else
 				{

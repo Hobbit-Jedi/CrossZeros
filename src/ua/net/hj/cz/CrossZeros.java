@@ -82,7 +82,8 @@ public class CrossZeros {
 					}
 					break;
 				case REPEAT:
-					System.out.println("Выбран повтор правил.");
+					// Повторяем предыдущую игру.
+					// Дополнительно ничего делать не нужно.
 					break;
 				case EXIT:
 					break mainLoop;

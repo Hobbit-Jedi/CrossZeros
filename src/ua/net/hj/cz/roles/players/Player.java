@@ -1,5 +1,6 @@
 package ua.net.hj.cz.roles.players;
 
+import ua.net.hj.cz.core.ActionFigure;
 import ua.net.hj.cz.core.Move;
 import ua.net.hj.cz.roles.Board;
 import ua.net.hj.cz.roles.Rules;
@@ -166,8 +167,9 @@ public abstract class Player implements PlayerReadOnly {
 	 * @param aBoard - Слепок текущей ситуации на игровом поле.
 	 * @param aActivePlayersSequence - Порядок, в котором ходят еще активные участвующие в игре игроки.
 	 *                                 Массив содержит уникальные идентификаторы игроков.
+	 * @param aFigure - Фигура, которой игрок должен сделать ход.
 	 * @return - Ход, который собирается делать игрок.
 	 *           null, если игрок не знает куда пойти.
 	 */
-	abstract public Move makeMove(Board aBoard, byte[] aActivePlayersSequence);
+	abstract public Move makeMove(Board aBoard, byte[] aActivePlayersSequence, ActionFigure aFigure);
 }

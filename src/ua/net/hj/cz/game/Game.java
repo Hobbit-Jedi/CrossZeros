@@ -68,6 +68,14 @@ public class Game {
 		mRules = null;
 		mInitialPlayersSequence = null;
 		mPlayerIDsFiguresMap = null;
+		try
+		{
+			releasePlayers();
+		}
+		catch (PlayerException e)
+		{
+			// Ничего не делаем, т.к. игра и так готовится к удалению.
+		}
 	}
 	
 	/**
@@ -173,6 +181,9 @@ public class Game {
 				players.add(player);
 				playersIDs[i] = player.getID();
 			}
+			System.out.println();
+			System.out.println("-----------------------------------------");
+			System.out.println("Подготовка к игре...");
 			for (Player player: players)
 			{
 				System.out.print("Игрок " + player + "(" + mPlayerIDsFiguresMap.get(player.getID()) + ") знакомится с правилами");
@@ -181,7 +192,7 @@ public class Game {
 			}
 			
 			System.out.println();
-			System.out.println("--------------");
+			System.out.println("-----------------------------------------");
 			System.out.println("Игра началась!");
 			board.print();
 			
@@ -191,10 +202,19 @@ public class Game {
 				for (int i = 0; i < players.size(); i++)
 				{
 					Player player = players.get(i);
-					do {			
-						move = player.makeMove(new Board(board), playersIDs);
+					ActionFigure playerFigure = mPlayerIDsFiguresMap.get(player.getID());
+					if (playerFigure == null)
+					{
 						System.out.println();
-						System.out.println("Игрок " + player + " ходит " + move);
+						System.out.println("ОШИБКА!");
+						System.out.println("Игроку " + player + " не назначена фигура.");
+						System.out.println("Программа завершает свою работу...");
+						return false;
+					}
+					do {			
+						move = player.makeMove(new Board(board), playersIDs, playerFigure);
+						System.out.println();
+						System.out.println("Игрок " + move);
 						moveResult = referee.commitMove(player, move, board, mRules, players);
 					} while (moveResult == null); // Пока Игроку есть куда ходить, но он делает некорректные хода.
 					board.print();
@@ -266,13 +286,14 @@ public class Game {
 	
 	private void createPlayers(boolean aIsRulesClassic) throws ScanExitException, PlayerException
 	{
+		releasePlayers();
 		mInitialPlayersSequence = new Player[mRules.getNumOfPlayers()];
 		mPlayerIDsFiguresMap = new HashMap();
 		ActionFigure[] figures = ActionFigure.values();
 		for (int i = 0; i < mInitialPlayersSequence.length; i++)
 		{
 			System.out.println();
-			System.out.println("-------------------------------");
+			System.out.println("-----------------------------------------");
 			System.out.println("Создание игрока №" + (i+1) + (aIsRulesClassic ? " (" + figures[i] + ")" : "") + ":");
 			mInitialPlayersSequence[i] = createPlayer();
 			
@@ -376,7 +397,7 @@ public class Game {
 				throw new UnknownError("Неизвестный выбранный тип игрока.");
 		}
 		System.out.println();
-		System.out.println("Создан игрок " + name + " [" + playerType + "].");
+		System.out.println("Создан игрок " + result + " [" + playerType + "].");
 		return result;
 	}
 	
@@ -388,7 +409,7 @@ public class Game {
 	 *                                               набрал комманду "exit" (в любом регистре),
 	 *                                               то вызывает данное исключение.
 	 */
-	public byte scanByte(String aMsg) throws ScanExitException
+	private byte scanByte(String aMsg) throws ScanExitException
 	{
 		byte result = (byte)0;
 		while (true)
@@ -433,7 +454,7 @@ public class Game {
 	 *                                               набрал комманду "exit" (в любом регистре),
 	 *                                               то вызывает данное исключение.
 	 */
-	public byte scanByteBordered(String aMsg, byte aMin, byte aMax) throws ScanExitException
+	private byte scanByteBordered(String aMsg, byte aMin, byte aMax) throws ScanExitException
 	{
 		byte result;
 		while (true)
@@ -452,4 +473,17 @@ public class Game {
 		return result;
 	}
 	
+	/**
+	 * Освободить фабрику от игроков.
+	 */
+	private void releasePlayers() throws PlayerException
+	{
+		if (mInitialPlayersSequence != null)
+		{
+			for (Player player: mInitialPlayersSequence)
+			{
+				mPlayersFactory.releasePlayer(player);
+			}
+		}
+	}
 }
