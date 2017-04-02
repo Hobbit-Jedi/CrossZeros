@@ -1,6 +1,7 @@
 package ua.net.hj.cz.roles.players;
 
-import java.util.Random;
+import java.util.ArrayList;
+import ua.net.hj.cz.analytics.GameTreeNode;
 import ua.net.hj.cz.core.ActionFigure;
 import ua.net.hj.cz.core.Coordinates;
 import ua.net.hj.cz.core.Move;
@@ -9,24 +10,23 @@ import ua.net.hj.cz.roles.Board;
 import ua.net.hj.cz.roles.Rules;
 
 /**
- * Описывает Игрока, который ходит, в основном, случайным образом.
+ * Описывает игрока, с которым играть легко.
+ * Он оценивает состояние доски после своего хода, и таким образом выбирает наиболее подходящий ход.
+ * При этом не видит того, что на следующем ходу противник может выиграть.
  * @author Hobbit Jedi
  */
-public class PlayerRandom extends Player {
-	private final Random mRandom;                      // Генератор случайных чисел.
-	private static final int NUM_OF_RANDOM_TRIES = 10; // Количество попыток походить случайно, после которого ходим в первую свободную ячейку.
+public class PlayerEasy extends Player {
 	
 	/**
 	 * Создает игрока.
 	 * @param aName - Имя игрока.
 	 * @param aPlayerID - Уникальный идентифиатор игрока.
 	 */
-	PlayerRandom(String aName, byte aPlayerID)
+	PlayerEasy(String aName, byte aPlayerID)
 	{
 		super(aName, aPlayerID);
-		mRandom = new Random();
 	}
-
+	
 	/**
 	 * Выполнить ход.
 	 * @param aBoard - Слепок текущей ситуации на игровом поле.
@@ -42,32 +42,40 @@ public class PlayerRandom extends Player {
 	@Override
 	public Move makeMove(Board aBoard, byte[] aActivePlayersSequence, Rules aRules, ActionFigure aFigure) throws ScanExitException
 	{
-		final byte boardXSize = aBoard.getXSize();
-		final byte boardYSize = aBoard.getYSize();
 		Move result = null;
-		Coordinates emptyCell = aBoard.searchFirstEmpty();
-		if (emptyCell != null)
+		byte boardXSize = aBoard.getXSize();
+		byte boardYSize = aBoard.getYSize();
+		double maxWeight = Double.NEGATIVE_INFINITY;
+		ArrayList<Coordinates> nextMoves = new ArrayList<>();
+		for (byte y = 0; y < boardYSize; y++)
 		{
-			byte x;
-			byte y;
-			boolean found = false;
-			int randomTriesCounter = NUM_OF_RANDOM_TRIES;
-			do {				
-				x = (byte)mRandom.nextInt(boardXSize);
-				y = (byte)mRandom.nextInt(boardYSize);
-				found = (aBoard.lookAt(x, y) == 0);
-			} while (!found && --randomTriesCounter >= 0);
-			if (found)
+			for (byte x = 0; x < boardXSize; x++)
 			{
-				result = new Move(x, y, this, aFigure);
+				if (aBoard.lookAt(x, y) == 0)
+				{
+					aBoard.setAt(x, y, mPlayerID);
+					GameTreeNode nextGameState = new GameTreeNode(mPlayerID, aBoard, aRules);
+					aBoard.setAt(x, y, (byte)0); // Вернем доску в исходное состояние.
+					double currentWeight = nextGameState.getBoardWeigtht();
+					if (maxWeight < currentWeight)
+					{
+						maxWeight = currentWeight;
+						nextMoves.clear();
+						nextMoves.add(new Coordinates(x, y));
+					}
+					else if (maxWeight == currentWeight)
+					{
+						nextMoves.add(new Coordinates(x, y));
+					}
+				}
 			}
-			else
-			{
-				// Если испробовали все попытки попасть в пустую клетку случайно,
-				// то ходим в первую свободную.
-				result = new Move(emptyCell, this, aFigure);
-			}
+		}
+		if (nextMoves.size() > 0)
+		{
+			int choose = (int)(Math.random() * nextMoves.size());
+			result = new Move(nextMoves.get(choose), this, aFigure);
 		}
 		return result;
 	}
+	
 }

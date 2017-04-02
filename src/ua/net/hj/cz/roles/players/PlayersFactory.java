@@ -64,6 +64,48 @@ public class PlayersFactory {
 	}
 	
 	/**
+	 * Создать нового игрока "Компьютер: Легкий".
+	 * @param aName - Имя создаваемого игрока.
+	 * @return - Созданный игрок.
+	 * @throws PlayerException - Если во время создания игрока возникла ошибка,
+	 *                           например, заполнен пул уникальных идентификаторов игроков,
+	 *                           то вызывает данное исключение.
+	 */
+	public Player createEasyPlayer(String aName) throws PlayerException
+	{
+		byte newPlayerID = getFreePlayerID();
+		if (newPlayerID != 0)
+		{
+			return new PlayerEasy(aName, newPlayerID);
+		}
+		else
+		{
+			throw new PlayerException("Players quantity overflow!");
+		}
+	}
+	
+	/**
+	 * Создать нового игрока "Компьютер: Умный".
+	 * @param aName - Имя создаваемого игрока.
+	 * @return - Созданный игрок.
+	 * @throws PlayerException - Если во время создания игрока возникла ошибка,
+	 *                           например, заполнен пул уникальных идентификаторов игроков,
+	 *                           то вызывает данное исключение.
+	 */
+	public Player createCleverPlayer(String aName) throws PlayerException
+	{
+		byte newPlayerID = getFreePlayerID();
+		if (newPlayerID != 0)
+		{
+			return new PlayerClever(aName, newPlayerID);
+		}
+		else
+		{
+			throw new PlayerException("Players quantity overflow!");
+		}
+	}
+	
+	/**
 	 * Освобождение ресурсов, занимаемых игроком.
 	 * @param aPlayer - Игрок, от которого освобождаются ресурсы.
 	 * @throws PlayerException - Если методу передан игрок, у которого идентификатор

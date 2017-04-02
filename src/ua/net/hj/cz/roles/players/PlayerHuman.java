@@ -1,11 +1,13 @@
 package ua.net.hj.cz.roles.players;
 
 import java.util.Scanner;
+import ua.net.hj.cz.analytics.GameTreeNode;
 import ua.net.hj.cz.core.ActionFigure;
 import ua.net.hj.cz.core.Coordinates;
 import ua.net.hj.cz.core.Move;
 import ua.net.hj.cz.game.ScanExitException;
 import ua.net.hj.cz.roles.Board;
+import ua.net.hj.cz.roles.Rules;
 
 /**
  * Описывает Игрока, которым управляет человек с консоли.
@@ -25,12 +27,13 @@ public class PlayerHuman extends Player {
 		SCANNER = new Scanner(System.in);
 		SCANNER.useDelimiter("\\n");
 	}
-
+	
 	/**
 	 * Выполнить ход.
 	 * @param aBoard - Слепок текущей ситуации на игровом поле.
 	 * @param aActivePlayersSequence - Порядок, в котором ходят еще активные участвующие в игре игроки.
 	 *                                 Массив содержит уникальные идентификаторы игроков.
+	 * @param aRules - Правила, по которым ведется игра.
 	 * @param aFigure - Фигура, которой игрок должен сделать ход.
 	 * @return - Ход, который собирается делать игрок.
 	 *           null, если игрок не знает куда пойти.
@@ -38,26 +41,35 @@ public class PlayerHuman extends Player {
 	 *                                               чтобы мгновенно прекратить игру.
 	 */
 	@Override
-	public Move makeMove(Board aBoard, byte[] aActivePlayersSequence, ActionFigure aFigure) throws ScanExitException
+	public Move makeMove(Board aBoard, byte[] aActivePlayersSequence, Rules aRules, ActionFigure aFigure) throws ScanExitException
 	{
 		System.out.println();
 		System.out.println("Ходит игрок " + mName);
-		Coordinates coordinates = scanCoordinates();
+		Coordinates coordinates = scanCoordinates(aRules);
 		return new Move(coordinates, this, aFigure);
 	}
 	
-	private Coordinates scanCoordinates() throws ScanExitException
+	/**
+	 * Запросить у пользователя ввод координат или команды.
+	 * @param aRules - Правила, по которым ведется игра (используется при вводе команды rules).
+	 * @return - Введенные пользователем координаты.
+	 * @throws ScanExitException - Если пользователь ввел команду exit,
+	 *                             то выбрасывается данное исключение.
+	 */
+	private Coordinates scanCoordinates(Rules aRules) throws ScanExitException
 	{
 		Coordinates result;
 		String inputX;
 		String inputY;
-		final String scanPattern = "([Ee][Xx][Ii][Tt])|(\\s*[a-zA-Z]+[\\s|\\.|,]*[0-9]+\\s*)";
+		final String scanPattern = "([Ee][Xx][Ii][Tt])|([Rr][Uu][Ll][Ee][Ss])|(\\s*[a-zA-Z]+[\\s|\\.|,]*[0-9]+\\s*)";
 		
+		outer:
 		while (true)
 		{
 			System.out.println();
 			System.out.println("Варианты:");
 			System.out.println("	- Координаты хода (x - буквенная координата, y - числовая координата) в виде \"xy\" или \"x y\" или \"x,y\" или \"x.y\".");
+			System.out.println("	- \"rules\" для отображения правил.");
 			System.out.println("	- \"exit\" для выхода из игры.");
 			System.out.print("Ввведите:");
 			while (true)
@@ -66,7 +78,18 @@ public class PlayerHuman extends Player {
 				{
 					String scanInput;
 					scanInput = SCANNER.next(scanPattern);
-					if (!scanInput.toLowerCase().equals("exit"))
+					if (scanInput.toLowerCase().equals("exit"))
+					{
+						SCANNER.close();
+						throw new ScanExitException();
+					}
+					else if (scanInput.toLowerCase().equals("rules"))
+					{
+						System.out.println();
+						System.out.println(aRules);
+						continue outer;
+					}
+					else
 					{
 						String[] parts;
 						parts = scanInput.split("\\s*,\\s*");
@@ -113,11 +136,6 @@ public class PlayerHuman extends Player {
 						}
 						break;
 					}
-					else
-					{
-						SCANNER.close();						
-						throw new ScanExitException();
-					}
 				}
 				else
 				{
@@ -147,5 +165,5 @@ public class PlayerHuman extends Player {
 		}
 		return result;
 	}
-
+	
 }

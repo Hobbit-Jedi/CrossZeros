@@ -96,13 +96,16 @@ public class Referee {
 				System.out.println("Игрок " + aPlayer + " не знает куда ему пойти.");
 			}
 		}
-		if (result == null && aRules.getNumErrorsAllowed() >= 0)
+		byte numErrorsAllowed = aRules.getNumErrorsAllowed();
+		if (result == null && numErrorsAllowed >= 0)
 		{
 			// Проверим не пора ли игрока дисквалифицировать.
 			Integer errorsQuantity = mPlayersErrorsCounters.getOrDefault(currentPlayerID, 0);
-			if (errorsQuantity < aRules.getNumErrorsAllowed())
+			if (errorsQuantity < numErrorsAllowed)
 			{
-				mPlayersErrorsCounters.put(currentPlayerID, errorsQuantity + 1);
+				errorsQuantity += 1;
+				mPlayersErrorsCounters.put(currentPlayerID, errorsQuantity);
+				System.out.println("Игрок " + aPlayer + " получает предупреждение: " + errorsQuantity + "/" + numErrorsAllowed + ".");
 			}
 			else
 			{

@@ -164,15 +164,31 @@ public abstract class Player implements PlayerReadOnly {
 	}
 	
 	/**
+	 * Обработать сообщение о выполненом в игре ходе.
+	 * @param aPlayerID - Идентификатор сделавшего ход игрока.
+	 * @param aMove - Сделанный ход.
+	 * @param aBoard - Новое состояние доски после выполнения хода.
+	 */
+	public void moveNotificationHandler(byte aPlayerID, Move aMove, Board aBoard)
+	{
+		if (mIsDead)
+		{
+			throw new IllegalStateException("Dead player usage.");
+		}
+		// Реализация по умолчанию ничего не делает.
+	}
+	
+	/**
 	 * Выполнить ход.
 	 * @param aBoard - Слепок текущей ситуации на игровом поле.
 	 * @param aActivePlayersSequence - Порядок, в котором ходят еще активные участвующие в игре игроки.
 	 *                                 Массив содержит уникальные идентификаторы игроков.
+	 * @param aRules - Правила, по которым ведется игра.
 	 * @param aFigure - Фигура, которой игрок должен сделать ход.
 	 * @return - Ход, который собирается делать игрок.
 	 *           null, если игрок не знает куда пойти.
 	 * @throws ua.net.hj.cz.game.ScanExitException - Управляемые человеком игроки могут вызвать это исключение,
 	 *                                               чтобы мгновенно прекратить игру.
 	 */
-	abstract public Move makeMove(Board aBoard, byte[] aActivePlayersSequence, ActionFigure aFigure) throws ScanExitException;
+	abstract public Move makeMove(Board aBoard, byte[] aActivePlayersSequence, Rules aRules, ActionFigure aFigure) throws ScanExitException;
 }

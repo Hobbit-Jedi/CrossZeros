@@ -134,13 +134,16 @@ public class Board {
 	 * @param aX - X-координата клеточки, в которой устанавливаем фигуру.
 	 * @param aY - Y-координата клеточки, в которой устанавливаем фигуру.
 	 * @param aPlayerID - Идентификатор игрока, фигуру которого устанавливаем в указанных координатах.
-	 * @throws IllegalArgumentException - Если координаты выходят за пределы поля, то вызывает исключение.
+	 *                    0, если требуется очистить клеточку.
+	 * @throws IllegalArgumentException - Если координаты выходят за пределы поля,
+	 *                                    или указан неизвестный доске идентификатор игрока,
+	 *                                    то вызывает исключение.
 	 */
 	public void setAt(byte aX, byte aY, byte aPlayerID) throws IllegalArgumentException
 	{
 		if (isCoordinateAtBoard(aX, aY))
 		{
-			if (mPlayerIDsFiguresMap.get(aPlayerID) != null)
+			if (aPlayerID == 0 || mPlayerIDsFiguresMap.get(aPlayerID) != null)
 			{
 				mField[aY * mXSize + aX] = aPlayerID;
 			}
@@ -160,7 +163,9 @@ public class Board {
 	 * !!!ВНИМАНИЕ!!! Затирает расположенную в указанных координатах старую фигуру.
 	 * @param aCoordinates - Координаты клеточки, в которой устанавливаем фигуру.
 	 * @param aPlayerID - Идентификатор игрока, фигуру которого устанавливаем в указанных координатах.
-	 * @throws IllegalArgumentException - Если координаты выходят за пределы поля, то вызывает исключение.
+	 * @throws IllegalArgumentException - Если координаты выходят за пределы поля,
+	 *                                    или указан неизвестный доске идентификатор игрока,
+	 *                                    то вызывает исключение.
 	 */
 	public void setAt(Coordinates aCoordinates, byte aPlayerID) throws IllegalArgumentException
 	{

@@ -24,6 +24,7 @@ public class Game {
 	{
 		HUMAN ("Человек"),
 		RANDOM("Компьютер: Случайный стрелок"),
+		EASY  ("Компьютер: Легкий"),
 		CLEVER("Компьютер: Умный")
 		;
 		
@@ -201,6 +202,7 @@ public class Game {
 				for (int i = 0; i < players.size(); i++)
 				{
 					Player player = players.get(i);
+					byte playerID = player.getID();
 					ActionFigure playerFigure = mPlayerIDsFiguresMap.get(player.getID());
 					if (playerFigure == null)
 					{
@@ -211,12 +213,16 @@ public class Game {
 						return false;
 					}
 					do {			
-						move = player.makeMove(new Board(board), playersIDs, playerFigure);
+						move = player.makeMove(new Board(board), playersIDs, mRules, playerFigure);
 						System.out.println();
 						System.out.println("Игрок " + move);
 						moveResult = referee.commitMove(player, move, board, mRules, players);
 					} while (moveResult == null); // Пока Игроку есть куда ходить, но он делает некорректные хода.
-					board.print();
+					// Разошлем игрокам оповещения о ходе.
+					for (Player playerToNotify: mInitialPlayersSequence)
+					{
+						playerToNotify.moveNotificationHandler(playerID, move, board);
+					}
 					switch (moveResult)
 					{
 						case WIN:
@@ -224,10 +230,9 @@ public class Game {
 							System.out.println();
 							System.out.println("ВЫИГРАЛ Игрок " + player + "!!!");
 							// Оповестим всех игроков о победе игрока.
-							byte winnerID = player.getID();
 							for (Player playerToNotify: mInitialPlayersSequence)
 							{
-								playerToNotify.winNotificationHandler(winnerID);
+								playerToNotify.winNotificationHandler(playerID);
 							}
 							break;
 						case DEADLOCK:
@@ -252,19 +257,18 @@ public class Game {
 								playersIDs[j] = players.get(j).getID();
 							}
 							// Оповестим всех игроков о дисквалификации игрока.
-							byte looserID = player.getID();
 							for (Player playerToNotify: mInitialPlayersSequence)
 							{
-								playerToNotify.disqualificationNotificationHandler(looserID, playersIDs);
+								playerToNotify.disqualificationNotificationHandler(playerID, playersIDs);
 							}
 							if (players.size() == 1)
 							{
 								Player winner = players.get(0);
+								byte winnerID = winner.getID();
 								gameOver = true;
 								System.out.println();
 								System.out.println("ВЫИГРАЛ Игрок " + winner + "!!!");
 								// Оповестим всех игроков о победе игрока.
-								winnerID = winner.getID();
 								for (Player playerToNotify: mInitialPlayersSequence)
 								{
 									playerToNotify.winNotificationHandler(winnerID);
@@ -272,6 +276,7 @@ public class Game {
 							}
 							break;
 					}
+					board.print();
 					if (gameOver) break;
 				}
 			}
@@ -385,10 +390,11 @@ public class Game {
 			case RANDOM:
 				result = mPlayersFactory.createRandomPlayer(name);
 				break;
+			case EASY:
+				result = mPlayersFactory.createEasyPlayer(name);
+				break;
 			case CLEVER:
-				//TODO: Заменить на создание правильного типа игрока.
-				//result = new PlayerInvincible(name);
-				result = mPlayersFactory.createRandomPlayer(name);
+				result = mPlayersFactory.createCleverPlayer(name);
 				break;
 			default:
 				throw new UnknownError("Неизвестный выбранный тип игрока.");

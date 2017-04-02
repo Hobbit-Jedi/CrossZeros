@@ -108,16 +108,6 @@ public class Rules {
 		return mNumOfPlayers;
 	}
 	
-	//TODO: Убрать мусор.
-	///**
-	// * Получить массив с начальным порядком участвующих в игре игроков.
-	// * @return - Ссылка на массив игроков.
-	// */
-	//public PlayerReadOnly[] getInitialPlayersOrder()
-	//{
-	//	return mInitialPlayersOrder;
-	//}
-	
 	/**
 	 * Проверить совпадают ли данные правила игры с другими правилами игры.
 	 * @param obj - Правила игры, с которыми выполняется сравнение текущих правил игры.
@@ -242,4 +232,19 @@ public class Rules {
 		return result;
 	}
 
+	/**
+	 * Получить строковое представление правил, пригодное для отображения в консоли.
+	 * @return - Строковое представление хода.
+	 */
+	@Override
+	public String toString() {
+		StringBuilder result = new StringBuilder();
+		result.append("Правила игры:\n");
+		result.append(" - Размер поля: ").append(mBoardXSize).append("x").append(mBoardXSize).append("\n");
+		result.append(" - Количество фигур в линию для победы: ").append(mWinLineLength).append("\n");
+		result.append(" - Количество игроков: ").append(mNumOfPlayers).append("\n");
+		result.append(" - Допустимое количество ошибок: ").append(mNumErrorsAllowed).append("\n");
+		return result.toString();
+	}
+	
 }
