@@ -1,9 +1,6 @@
 package ua.net.hj.cz.roles;
 
-//TODO: Убрать мусор.
-//import java.util.Arrays;
 import ua.net.hj.cz.core.Move;
-//import ua.net.hj.cz.roles.players.PlayerReadOnly;
 
 /**
  * Описывает правила, по которым ведется игра.
@@ -15,8 +12,6 @@ public class Rules {
 	private final byte mWinLineLength;                   // Длина линии из одинаковых фигур для победы.
 	private final byte mNumErrorsAllowed;                // Допустимое количество ошибок до дисквалификации.
 	private final byte mNumOfPlayers;                    // Количество играющих игроков.
-	//TODO: Убрать мусор.
-	//private final PlayerReadOnly[] mInitialPlayersOrder; // Порядок хода игроков в начале игры.
 	
 	/**
 	 * Создать правила по умолчанию.
@@ -46,8 +41,6 @@ public class Rules {
 		mWinLineLength       = aWinLineLength;
 		mNumErrorsAllowed    = aNumErrorsAllowed;
 		mNumOfPlayers        = aNumOfPlayers;
-		//TODO: Убрать мусор.
-		//mInitialPlayersOrder = new PlayerReadOnly[aNumOfPlayers];
 	}
 	
 	/**
@@ -57,9 +50,6 @@ public class Rules {
 	public Rules(Rules aRules)
 	{
 		this(aRules.getBoardXSize(), aRules.getBoardYSize(), aRules.getWinLineLength(), aRules.getNumErrorsAllowed(), aRules.getNumOfPlayers());
-		//TODO: Убрать мусор.
-		//PlayerReadOnly[] rulesPlayers = aRules.getInitialPlayersOrder();
-		//System.arraycopy(rulesPlayers, 0, mInitialPlayersOrder, 0, rulesPlayers.length);
 	}
 	
 	/**
@@ -131,8 +121,6 @@ public class Rules {
 						&& (this.mWinLineLength == other.mWinLineLength)
 						&& (this.mNumErrorsAllowed == other.mNumErrorsAllowed)
 						&& (this.mNumOfPlayers == other.mNumOfPlayers)
-						//TODO: Убрать мусор.
-						//&& (Arrays.deepEquals(this.mInitialPlayersOrder, other.mInitialPlayersOrder))
 						;
 		return result;
 	}
@@ -150,8 +138,6 @@ public class Rules {
 		hash = 53 * hash + mWinLineLength;
 		hash = 53 * hash + mNumErrorsAllowed;
 		hash = 53 * hash + mNumOfPlayers;
-		//TODO: Убрать мусор.
-		//hash = 53 * hash + Arrays.deepHashCode(mInitialPlayersOrder);
 		return hash;
 	}
 	

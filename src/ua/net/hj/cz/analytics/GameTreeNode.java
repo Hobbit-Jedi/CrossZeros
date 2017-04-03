@@ -1,6 +1,6 @@
 package ua.net.hj.cz.analytics;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import ua.net.hj.cz.roles.Board;
 import ua.net.hj.cz.roles.Rules;
 
@@ -37,144 +37,176 @@ public class GameTreeNode {
 	 */
 	private double calculateBoardWeigtht()
 	{
+		/**
+		 * Описывает счетчик фигур в линии.
+		 * Расчитывает вес линии.
+		 */
+		class LineCounter {
+			private byte mLineLength;        // Потенциальная длина линии.
+			private byte mFigureCount;       // Количество отслеживаемых фигур в линии.
+			private ArrayList<Byte> mChains; // Цепочки цельных последовательностей отслеживаемый фигур.
+			private byte mChainFigureCount;  // Длина текущей отслеживаемой цепочки.
+			private double mWeight;          // Вес линии.
+			
+			public LineCounter()
+			{
+				mLineLength = 0;
+				mFigureCount = 0;
+				mChains = new ArrayList<>();
+				mChainFigureCount = 0;
+				mWeight = 0;
+			}
+			
+			/**
+			 * Выполняет следующий шаг рассчета линии.
+			 * @param aCurrentCellValue - Значение текущей рассматриваемой ячейки.
+			 * @param aAnalyticID - Идентификатор игрока, линии которого считаем.
+			 * @param aWinLineLength - Длина победной линии.
+			 * @return - Признак того, что позиция победная для данного игрока,
+			 *           и можно дальше анализ не проводить.
+			 */
+			public boolean nextCountStep(byte aCurrentCellValue, byte aAnalyticID, byte aWinLineLength)
+			{
+				boolean result = false;
+				if (aCurrentCellValue == 0)
+				{
+					mLineLength++;
+					if (mChainFigureCount > 0)
+					{
+						mChains.add(mChainFigureCount);
+						mChainFigureCount = 0;
+					}
+				}
+				else if (aCurrentCellValue == aAnalyticID)
+				{
+					if (++mChainFigureCount < aWinLineLength)
+					{
+						mLineLength++;
+						mFigureCount++;
+					}
+					else
+					{
+						mWeight = Double.POSITIVE_INFINITY;
+						result = true;
+					}
+				}
+				else
+				{
+					closeLine(aWinLineLength);
+				}
+				return result;
+			}
+			
+			/**
+			 * Закрывает линию (накапливает расчитанный вес линии).
+			 * @param aWinLineLength - Длина победной линии.
+			 */
+			public void closeLine(byte aWinLineLength)
+			{
+				if (mLineLength >= aWinLineLength)
+				{
+					// Учитываем последнюю не закрытую цепочку.
+					if (mChainFigureCount > 0)
+					{
+						mWeight += Math.pow(10, mChainFigureCount);
+					}
+					// Учитываем уже закрытые цепочки.
+					for (Byte chainLength: mChains)
+					{
+						mWeight += Math.pow(10, chainLength);
+					}
+					// Учитываем количество неучтеных победных линий, которые могут поместиться в потенциальной линии.
+					mWeight += Math.floor((mLineLength - mFigureCount - (mFigureCount == 0 ? 0 : 1)) / aWinLineLength);
+				}
+				mLineLength = 0;
+				mFigureCount = 0;
+				mChains = new ArrayList<>();
+				mChainFigureCount = 0;
+			}
+			
+			/**
+			 * Получить накопленное значение веса линии.
+			 * @return - Накопленное значение веса линии.
+			 */
+			public double getWeight()
+			{
+				return mWeight;
+			}
+			
+		}
+		
 		double result = 0d;
 		byte boardXSize = mBoard.getXSize();
 		byte boardYSize = mBoard.getYSize();
 		byte winLineLength = mRules.getWinLineLength();
 		int diagonalsQuantityCodirectional = boardXSize + boardYSize - (winLineLength<<1) + 1;
 		int diagonalsQuantityTotal = diagonalsQuantityCodirectional<<1;
-		byte[] columnFigureCounters = new byte[boardXSize];
-		byte[] columnLengthCounters = new byte[boardXSize];
-		byte[] diagonalFigureCounters = new byte[diagonalsQuantityTotal];
-		byte[] diagonalLengthCounters = new byte[diagonalsQuantityTotal];
-		Arrays.fill(columnFigureCounters, (byte)0);
-		Arrays.fill(columnLengthCounters, (byte)0);
-		Arrays.fill(diagonalFigureCounters, (byte)0);
-		Arrays.fill(diagonalLengthCounters, (byte)0);
+		LineCounter[] columnCounters = new LineCounter[boardXSize];
+		LineCounter[] diagonalCounters = new LineCounter[diagonalsQuantityTotal];
+		for (int i = 0; i < boardXSize; i++)
+		{
+			columnCounters[i] = new LineCounter();
+		}
+		for (int i = 0; i < diagonalsQuantityTotal; i++)
+		{
+			diagonalCounters[i] = new LineCounter();
+		}
+		
 		exit:
 		for (byte y = 0; y < boardYSize; y++)
 		{
-			byte rowFigureCounter = 0;
-			byte rowLengthCounter = 0;
+			LineCounter rowCounter = new LineCounter();
 			for (byte x = 0; x < boardXSize; x++)
 			{
 				int diagonalIndex;
 				byte currentCellValue = mBoard.lookAt(x, y);
-				// Обработаем строки и колонки.
-				if (currentCellValue == 0)
+				// Обработаем строку.
+				if (rowCounter.nextCountStep(currentCellValue, mAnalyticID, winLineLength))
 				{
-					rowLengthCounter++;
-					columnLengthCounters[x]++;
+					result = rowCounter.getWeight();
+					break exit;
 				}
-				else if (currentCellValue == mAnalyticID)
+				// Обработаем колонки.
+				if (columnCounters[x].nextCountStep(currentCellValue, mAnalyticID, winLineLength))
 				{
-					if (++rowFigureCounter >= winLineLength)
-					{
-						result = Double.POSITIVE_INFINITY;
-						break exit;
-					}
-					if (++columnFigureCounters[x] >= winLineLength)
-					{
-						result = Double.POSITIVE_INFINITY;
-						break exit;
-					}
-					rowLengthCounter++;
-					columnLengthCounters[x]++;
-				}
-				else
-				{
-					if (rowLengthCounter >= winLineLength)
-					{
-						result += Math.pow(10, rowFigureCounter)
-								+ Math.floor((rowLengthCounter - rowFigureCounter - 1) / winLineLength);
-					}
-					rowLengthCounter = 0;
-					rowFigureCounter = 0;
-					if (columnLengthCounters[x] >= winLineLength)
-					{
-						result += Math.pow(10, columnFigureCounters[x])
-								+ Math.floor((columnLengthCounters[x] - columnFigureCounters[x] - 1) / winLineLength);
-					}
-					columnLengthCounters[x] = 0;
-					columnFigureCounters[x] = 0;
+					result = columnCounters[x].getWeight();
+					break exit;
 				}
 				// Обработаем прямые диагонали.
 				diagonalIndex = x - y + boardYSize - winLineLength;
 				if (diagonalIndex >= 0 && diagonalIndex < diagonalsQuantityCodirectional)
 				{
-					if (currentCellValue == 0)
+					if (diagonalCounters[diagonalIndex].nextCountStep(currentCellValue, mAnalyticID, winLineLength))
 					{
-						diagonalLengthCounters[diagonalIndex]++;
-					}
-					else if (currentCellValue == mAnalyticID)
-					{
-						if (++diagonalFigureCounters[diagonalIndex] >= winLineLength)
-						{
-							result = Double.POSITIVE_INFINITY;
-							break exit;
-						}
-						diagonalLengthCounters[diagonalIndex]++;
-					}
-					else
-					{
-						if (diagonalLengthCounters[diagonalIndex] >= winLineLength)
-						{
-							result += Math.pow(10, diagonalFigureCounters[diagonalIndex])
-									+ Math.floor((diagonalLengthCounters[diagonalIndex] - diagonalFigureCounters[diagonalIndex] - 1) / winLineLength);
-						}
-						diagonalLengthCounters[diagonalIndex] = 0;
-						diagonalFigureCounters[diagonalIndex] = 0;
+						result = diagonalCounters[diagonalIndex].getWeight();
+						break exit;
 					}
 				}
 				// Обработаем обратные диагонали.
 				diagonalIndex = x + y + boardXSize + boardYSize - 3*winLineLength + 2;
 				if (diagonalIndex >= diagonalsQuantityCodirectional && diagonalIndex < diagonalsQuantityTotal)
 				{
-					if (currentCellValue == 0)
+					if (diagonalCounters[diagonalIndex].nextCountStep(currentCellValue, mAnalyticID, winLineLength))
 					{
-						diagonalLengthCounters[diagonalIndex]++;
-					}
-					else if (currentCellValue == mAnalyticID)
-					{
-						if (++diagonalFigureCounters[diagonalIndex] >= winLineLength)
-						{
-							result = Double.POSITIVE_INFINITY;
-							break exit;
-						}
-						diagonalLengthCounters[diagonalIndex]++;
-					}
-					else
-					{
-						if (diagonalLengthCounters[diagonalIndex] >= winLineLength)
-						{
-							result += Math.pow(10, diagonalFigureCounters[diagonalIndex])
-									+ Math.floor((diagonalLengthCounters[diagonalIndex] - diagonalFigureCounters[diagonalIndex] - 1) / winLineLength);
-						}
-						diagonalLengthCounters[diagonalIndex] = 0;
-						diagonalFigureCounters[diagonalIndex] = 0;
+						result = diagonalCounters[diagonalIndex].getWeight();
+						break exit;
 					}
 				}
 			}
-			if (rowLengthCounter >= winLineLength)
-			{
-				result += Math.pow(10, rowFigureCounter)
-						+ Math.floor((rowLengthCounter - rowFigureCounter - 1) / winLineLength);
-			}
+			rowCounter.closeLine(winLineLength);
+			result += rowCounter.getWeight();
 		}
-		for (int i = 0; i < boardXSize; i++)
+		if (Double.isFinite(result))
 		{
-			if (columnLengthCounters[i] >= winLineLength)
+			for (int i = 0; i < boardXSize; i++)
 			{
-				result += Math.pow(10, columnFigureCounters[i])
-						+ Math.floor((columnLengthCounters[i] - columnFigureCounters[i] - 1) / winLineLength);
+				columnCounters[i].closeLine(winLineLength);
+				result += columnCounters[i].getWeight();
 			}
-		}
-		for (int i = 0; i < diagonalsQuantityTotal; i++)
-		{
-			if (diagonalLengthCounters[i] >= winLineLength)
+			for (int i = 0; i < diagonalsQuantityTotal; i++)
 			{
-				result += Math.pow(10, diagonalFigureCounters[i])
-						+ Math.floor((diagonalLengthCounters[i] - diagonalFigureCounters[i] - 1) / winLineLength);
+				diagonalCounters[i].closeLine(winLineLength);
+				result += diagonalCounters[i].getWeight();
 			}
 		}
 		return result;

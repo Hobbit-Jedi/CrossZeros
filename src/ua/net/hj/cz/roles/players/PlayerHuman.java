@@ -1,7 +1,6 @@
 package ua.net.hj.cz.roles.players;
 
 import java.util.Scanner;
-import ua.net.hj.cz.analytics.GameTreeNode;
 import ua.net.hj.cz.core.ActionFigure;
 import ua.net.hj.cz.core.Coordinates;
 import ua.net.hj.cz.core.Move;
