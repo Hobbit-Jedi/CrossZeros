@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import ua.net.hj.cz.core.ActionFigure;
 import ua.net.hj.cz.core.Coordinates;
+import ua.net.hj.cz.core.GraphicSymbolsSet;
 
 /**
  * Описывает игровое поле.
@@ -205,20 +206,6 @@ public class Board {
 	 */
 	public void print()
 	{
-		final char lineTopLeftCorner     = '\u250C'; // ┌
-		final char lineTopRightCorner    = '\u2510'; // ┐
-		final char lineBottomLeftCorner  = '\u2514'; // └
-		final char lineBottomRightCorner = '\u2518'; // ┘
-		final char lineHorizontal        = '\u2500'; // ─
-		final char lineHorizontalDown    = '\u252C'; // ┬
-		final char lineHorizontalUp      = '\u2534'; // ┴
-		final char lineVertical          = '\u2502'; // │
-		final char lineVerticalRight     = '\u251C'; // ├
-		final char lineVerticalLeft      = '\u2524'; // ┤
-		final char lineCross             = '\u253C'; // ┼
-		final char spaceFullCell         = '\u3000'; // Специальный широкий пробел, который как раз по размеру в ячейку попадает.
-		final char spaceAroundLetter     = '\u2006'; // Специальный узкий пробел, которым надо обрамить букву или цифру, чтобы они в ячейку вписались.
-		
 		byte xCoordinateLength = (byte)Coordinates.indexToCoordinate((byte)(mXSize-1)).length();
 		byte yCoordinateLength = (byte)(new StringBuilder().append(mYSize-1).length());
 		// Преобразуем числовые X-индексы в буквенные координаты.
@@ -229,94 +216,94 @@ public class Board {
 		}
 		StringBuilder divideLine = new StringBuilder();
 		// Сформируем горизонтальную разделительную линию таблицы.
-		divideLine.append(lineVerticalRight);
+		divideLine.append(GraphicSymbolsSet.LINE_CROSS_LEFT);
 		for (byte j = 0; j < yCoordinateLength; j++)
 		{
-			divideLine.append(lineHorizontal);
+			divideLine.append(GraphicSymbolsSet.LINE_HORIZONTAL);
 		}
 		for (byte x = 0; x < mXSize; x++)
 		{
-			divideLine.append(lineCross).append(lineHorizontal);
+			divideLine.append(GraphicSymbolsSet.LINE_CROSS).append(GraphicSymbolsSet.LINE_HORIZONTAL);
 		}
-		divideLine.append(lineVerticalLeft);
+		divideLine.append(GraphicSymbolsSet.LINE_CROSS_RIGHT);
 		// Начинаем вывод.
 		System.out.println();
 		// Выведем верхнюю рамку поля.
-		System.out.print(lineTopLeftCorner);
+		System.out.print(GraphicSymbolsSet.LINE_TOP_LEFT_CORNER);
 		for (byte j = 0; j < yCoordinateLength; j++)
 		{
-			System.out.print(lineHorizontal);
+			System.out.print(GraphicSymbolsSet.LINE_HORIZONTAL);
 		}
 		for (byte x = 0; x < mXSize; x++)
 		{
-			System.out.print(lineHorizontalDown);
-			System.out.print(lineHorizontal);
+			System.out.print(GraphicSymbolsSet.LINE_CROSS_TOP);
+			System.out.print(GraphicSymbolsSet.LINE_HORIZONTAL);
 		}
-		System.out.println(lineTopRightCorner);
+		System.out.println(GraphicSymbolsSet.LINE_TOP_RIGHT_CORNER);
 		// Выведем X-координаты.
 		for (byte i = 0; i < xCoordinateLength; i++)
 		{
-			System.out.print(lineVertical);
+			System.out.print(GraphicSymbolsSet.LINE_VERTICAL);
 			for (byte j = 0; j < yCoordinateLength; j++)
 			{
-				System.out.print(spaceFullCell);
+				System.out.print(GraphicSymbolsSet.SPACE_FULL_CELL);
 			}
 			for (byte x = 0; x < mXSize; x++)
 			{
 				byte xCoordCurrentLen = (byte)xCoordinates[x].length();
-				System.out.print(lineVertical);
+				System.out.print(GraphicSymbolsSet.LINE_VERTICAL);
 				if (i >= xCoordinateLength - xCoordCurrentLen)
 				{
-					System.out.print(spaceAroundLetter);
+					System.out.print(GraphicSymbolsSet.SPACE_AROUND_LETTER);
 					System.out.print(xCoordinates[x].charAt(i - xCoordinateLength + xCoordCurrentLen));
-					System.out.print(spaceAroundLetter);
+					System.out.print(GraphicSymbolsSet.SPACE_AROUND_LETTER);
 				}
 				else
 				{
-					System.out.print(spaceFullCell);
+					System.out.print(GraphicSymbolsSet.SPACE_FULL_CELL);
 				}
 			}
-			System.out.println(lineVertical);
+			System.out.println(GraphicSymbolsSet.LINE_VERTICAL);
 		}
 		// Выводим разделительную горизонтальную черту.
 		System.out.println(divideLine);
 		// Выводим само поле.
 		for (byte y = 0; y < mYSize; y++)
 		{
-			System.out.print(lineVertical);
+			System.out.print(GraphicSymbolsSet.LINE_VERTICAL);
 			for (byte spaceCounter = 0; spaceCounter < yCoordinateLength; spaceCounter++)
 			{
-				System.out.print(spaceAroundLetter);
+				System.out.print(GraphicSymbolsSet.SPACE_AROUND_LETTER);
 			}
 			System.out.format("%"+yCoordinateLength+"d", y); // Выводим Y-координату
 			for (byte spaceCounter = 0; spaceCounter < yCoordinateLength; spaceCounter++)
 			{
-				System.out.print(spaceAroundLetter);
+				System.out.print(GraphicSymbolsSet.SPACE_AROUND_LETTER);
 			}
 			for (byte x = 0; x < mXSize; x++)
 			{
 				byte currentCellValue = mField[y * mXSize + x];
-				System.out.print(lineVertical);
-				System.out.print(currentCellValue != 0 ? mPlayerIDsFiguresMap.get(currentCellValue) : spaceFullCell);
+				System.out.print(GraphicSymbolsSet.LINE_VERTICAL);
+				System.out.print(currentCellValue != 0 ? mPlayerIDsFiguresMap.get(currentCellValue) : GraphicSymbolsSet.SPACE_FULL_CELL);
 			}
-			System.out.println(lineVertical);
+			System.out.println(GraphicSymbolsSet.LINE_VERTICAL);
 			if (y != mYSize - 1) // После последней строки разделительную линию не выводим.
 			{
 				System.out.println(divideLine);
 			}
 		}
 		// Выведем нижнюю рамку поля.
-		System.out.print(lineBottomLeftCorner);
+		System.out.print(GraphicSymbolsSet.LINE_BOTTOM_LEFT_CORNER);
 		for (byte j = 0; j < yCoordinateLength; j++)
 		{
-			System.out.print(lineHorizontal);
+			System.out.print(GraphicSymbolsSet.LINE_HORIZONTAL);
 		}
 		for (byte x = 0; x < mXSize; x++)
 		{
-			System.out.print(lineHorizontalUp);
-			System.out.print(lineHorizontal);
+			System.out.print(GraphicSymbolsSet.LINE_CROSS_BOTTOM);
+			System.out.print(GraphicSymbolsSet.LINE_HORIZONTAL);
 		}
-		System.out.println(lineBottomRightCorner);
+		System.out.println(GraphicSymbolsSet.LINE_BOTTOM_RIGHT_CORNER);
 	}
 	
 }

@@ -5,11 +5,11 @@ package ua.net.hj.cz.core;
  * @author Hobbit Jedi
  */
 public enum ActionFigure {
-	CROSS('\u2573'),  //крестик
-	NOUGHT('\u2B58'), //нолик
-	STAR('\u26E4'),   //звезда
-	STOP('\u26D4'),   //знак СТОП
-	CHECK('\u2705')   //галочка
+	CROSS(GraphicSymbolsSet.FIGURE_CROSS), //крестик
+	NOUGHT(GraphicSymbolsSet.FIGURE_ZERO), //нолик
+	STAR(GraphicSymbolsSet.FIGURE_STAR),   //звезда
+	STOP(GraphicSymbolsSet.FIGURE_STOP),   //знак СТОП
+	CHECK(GraphicSymbolsSet.FIGURE_CHECK)  //галочка
 	;
 	
 	private final char mImage; // Отображаемый символ.
