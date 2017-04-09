@@ -128,8 +128,12 @@ public class CrossZeros {
 			System.out.println(MainMenuEntries.EXIT);
 			System.out.print("Сделайте выбор:");
 			String answer = SCANNER.next().toUpperCase();
+			System.out.println("DEBUG: answer = " + answer);
 			for (MainMenuEntries entry: MainMenuEntries.values())
 			{
+				System.out.println("DEBUG: entry = " + entry);
+				System.out.println("DEBUG: entry.getCommand() = " + entry.getCommand());
+				System.out.println("DEBUG: answer.equals(entry.getCommand()) = " + answer.equals(entry.getCommand()));
 				if ((aIsPreviousRulesExist || entry != MainMenuEntries.REPEAT) && answer.equals(entry.getCommand()))
 				{
 					result = entry;
