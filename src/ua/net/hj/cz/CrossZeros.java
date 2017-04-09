@@ -52,7 +52,7 @@ public class CrossZeros {
 	static
 	{
 		SCANNER = new Scanner(System.in);
-		SCANNER.useDelimiter("\\n");
+		SCANNER.useDelimiter("(\\n+\\r*)|(\\r+\\n*)");
 	}
 	
 	/**

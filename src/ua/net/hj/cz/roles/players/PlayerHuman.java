@@ -24,7 +24,7 @@ public class PlayerHuman extends Player {
 	{
 		super(aName, aPlayerID);
 		SCANNER = new Scanner(System.in);
-		SCANNER.useDelimiter("\\n");
+		SCANNER.useDelimiter("(\\n+\\r*)|(\\r+\\n*)");
 	}
 	
 	/**
